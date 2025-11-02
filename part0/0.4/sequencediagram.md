@@ -1,6 +1,6 @@
-<pre> ```
+```mermaid
 
-mermaid sequenceDiagram
+sequenceDiagram
     participant browser
     participant server
 
@@ -28,4 +28,4 @@ mermaid sequenceDiagram
 
     Note right of browser: The browser executes the callback function that renders the notes
 
-``` </pre>
+```
