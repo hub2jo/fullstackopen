@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-const Header = ({header}) => (<h1>{header}</h1>)
-const GenerateAnecdote = ({anecdote}) => (<p>{anecdote}</p>)
+const Header = ({ header }) => (<h1>{header}</h1>)
+const GenerateAnecdote = ({ anecdote }) => (<p>{anecdote}</p>)
 const Button = ({ onClick, text }) => (<button onClick={onClick}>{text}</button>)
 const VoteCount = ({ count }) => (<p>has {count} votes</p>)
 
