@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const Person = ({ person }) => (<span>{person.name}: {person.number}<br></br></span>)
 const Persons = ({ filteredPersons }) => (
@@ -24,18 +25,19 @@ const PersonForm = ({ addPerson, newPerson, handleNewPerson }) => (
 )
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+  const [persons, setPersons] = useState([])
   const [newPerson, setNewPerson] = useState({ name: '', number: '' })
   const [filterName, setFilterName] = useState('')
 
-  const handleFilter = (event) => {
-    setFilterName(event.target.value)
-  }
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('promise fulfilled with phonebook data fetched from server:', response.data)
+        setPersons(response.data)
+      })
+  }, [])
 
   const filteredPersons = filterName === ''
     ? persons
@@ -43,6 +45,13 @@ const App = () => {
       person.name.toLowerCase().includes(filterName.toLowerCase())
     )
 
+  console.log('render from the front-end (unfiltered)', persons.length, 'persons')
+  console.log('render from the front-end (filtered)', filteredPersons.length, 'persons')
+
+  const handleFilter = (event) => {
+    setFilterName(event.target.value)
+  }
+  
   const handleNewPerson = (event) => {
     const { name, value } = event.target;
     setNewPerson({ ...newPerson, [name]: value });
