@@ -1,28 +1,8 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
-
-const Person = ({ person }) => (<span>{person.name}: {person.number}<br></br></span>)
-const Persons = ({ filteredPersons }) => (
-  <div>
-    {filteredPersons.map(person => 
-      <Person key={person.id} person={person} />
-    )}
-  </div>
-)
-const Filter = ({ filterName, handleFilter}) => (
-  <div>
-    filter shown with: <input value={filterName} onChange={handleFilter} />
-  </div>
-)
-const PersonForm = ({ addPerson, newPerson, handleNewPerson }) => (
-  <form onSubmit={addPerson}>
-    <div>name: <input name="name" value={newPerson.name} onChange={handleNewPerson} /></div>
-    <div>number: <input name="number" value={newPerson.number} onChange={handleNewPerson} /></div>
-    <div>
-      <button type="submit">add</button>
-    </div>
-  </form>
-)
+import personServices from './services/persons'
+import Filter from './components/Filter'
+import PersonForm from './components/PersonForm'
+import Persons from './components/Persons'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -30,12 +10,11 @@ const App = () => {
   const [filterName, setFilterName] = useState('')
 
   useEffect(() => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled with phonebook data fetched from server:', response.data)
-        setPersons(response.data)
+    personServices
+      .getAllPersons()
+      .then(initialPersons => {
+        console.log('promise fulfilled with phonebook data fetched from server:', initialPersons)
+        setPersons(initialPersons)
       })
   }, [])
 
@@ -44,9 +23,6 @@ const App = () => {
     : persons.filter(person => 
       person.name.toLowerCase().includes(filterName.toLowerCase())
     )
-
-  console.log('render from the front-end (unfiltered)', persons.length, 'persons')
-  console.log('render from the front-end (filtered)', filteredPersons.length, 'persons')
 
   const handleFilter = (event) => {
     setFilterName(event.target.value)
@@ -61,17 +37,45 @@ const App = () => {
     event.preventDefault()
     const nameFound = persons.some(person => person.name.toLowerCase() === newPerson.name.toLowerCase())
     if (nameFound) {
-      alert(`${newPerson.name} is already added to phonebook`)
+      if (window.confirm(`${newPerson.name} is already added to phonebook, replace the old number with a new one?`)) {
+        const personToUpdate  = persons.find(
+          p => p.name.toLowerCase() === newPerson.name.toLowerCase()
+        )
+        const updatedPerson = { ...personToUpdate, number: newPerson.number }
+        personServices
+          .updatePerson(personToUpdate.id, updatedPerson)
+          .then(returnedPerson => {
+            setPersons(persons.map(p => p.id !== personToUpdate.id ? p : returnedPerson))
+            console.log('all persons on the phonebook with updated person:', returnedPerson)
+            setNewPerson({ name: '', number: '' })
+          })
+      } else {
+          return
+      }
     } else {
       const newPersonObject = {
         name: newPerson.name,
         number: newPerson.number,
-        id: String(persons.length + 1),
-    }
+      }
       console.log('newly added person details with id:', newPersonObject)
-      setPersons(persons.concat(newPersonObject))
-      console.log('all persons on the phonebook with newly added person:', persons)
-      setNewPerson({ name: '', number: '' })
+      personServices
+        .addPerson(newPersonObject)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
+          console.log('all persons on the phonebook with newly added person:', returnedPerson)
+          setNewPerson({ name: '', number: '' })
+        })
+    }
+  }
+
+  const handleDeleteOf = id => {
+    const person = persons.find(p => p.id === id)
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      personServices
+        .deletePerson(id)
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== id))
+        })
     }
   }
 
@@ -82,9 +86,10 @@ const App = () => {
       <h3>Add a new</h3>      
       <PersonForm addPerson={addPerson} newPerson={newPerson} handleNewPerson={handleNewPerson} />
       <h2>Numbers</h2>
-      <Persons filteredPersons={filteredPersons} />
+      <Persons filteredPersons={filteredPersons} handleDeleteOf={handleDeleteOf} />
     </div>
   )
+
 }
 
 export default App
