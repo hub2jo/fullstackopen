@@ -1,5 +1,7 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan');
+const Person = require('./models/person')
 const app = express()
 
 morgan.token('data', (request) => {
@@ -7,9 +9,10 @@ morgan.token('data', (request) => {
       ? JSON.stringify(request.body) 
       : '';
 });
-
+  
 app.use(morgan(':method :url :status content-length :res[content-length] - :response-time ms :data'));
 
+/*
 let persons = [
     { 
       "id": "1",
@@ -32,19 +35,25 @@ let persons = [
       "number": "39-23-6423122"
     }
 ]
+*/
 
 app.use(express.json()) // middleware to parse JSON bodies
 app.use(express.static('dist')) // serve static files from the 'dist' directory
 
-app.get('/api/persons', (request, response) => {
-  response.json(persons)
-})
-
 app.get('/info', (request, response) => {
   const date = new Date()
-  response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${date}</p>`)
+  Person.find({}).then(persons => {
+    response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${date}</p>`)
+  })   
 })
 
+app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
+})
+
+/*
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
   const person = persons.find(person => person.id === id)
@@ -56,7 +65,24 @@ app.get('/api/persons/:id', (request, response) => {
     response.status(404).end()
   }
 })
+*/
 
+app.get('/api/persons/:id', (request, response) => {
+  Person.findById(request.params.id)
+    .then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => {
+      console.log(error)
+      response.status(400).send({ error: 'bad id' })
+    })
+})
+
+// not yet refactered delete to use mongoose
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
   person = persons.find(person => person.id === id)
@@ -71,6 +97,7 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end()
 })
 
+/*
 // get highesst current id
 const currentMaxId = persons.length > 0
   ? Math.max(...persons.map(n => Number(n.id)))
@@ -107,9 +134,36 @@ app.post('/api/persons', (request, response) => {
 
   response.json(person)
 })
+*/
 
-const PORT = process.env.PORT || 3001
+app.post('/api/persons', (request, response, next) => {
+  const body = request.body
 
+  if (!body.name || !body.number) {
+    return response.status(400).json({  
+      error: 'incomplete details: name or number is missing' 
+    })
+  }
+
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  })
+
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(error => next(error))
+})
+
+// handler of requests with unknown endpoint
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+app.use(unknownEndpoint)
+
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
