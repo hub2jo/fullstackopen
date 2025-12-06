@@ -102,6 +102,7 @@ const App = () => {
           setNoticeMessage(error.response.data.error)
           setTimeout(() => {
             setNoticeMessage(null)
+            setError(false)
           }, 5000)
 
         })
