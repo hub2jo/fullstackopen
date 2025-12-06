@@ -41,7 +41,7 @@ const App = () => {
     event.preventDefault()
     const nameFound = persons.some(person => person.name.toLowerCase() === newPerson.name.toLowerCase())
     if (nameFound) {
-      if (window.confirm(`${newPerson.name} is already added to phonebook, replace the old number with a new one?`)) {
+      if (window.confirm(`${newPerson.name} is already in phonebook, replace the old number with a new one?`)) {
         const personToUpdate  = persons.find(
           p => p.name.toLowerCase() === newPerson.name.toLowerCase()
         )
@@ -60,6 +60,7 @@ const App = () => {
             }, 5000)
           })
           .catch(error => {
+            console.log('error updating person:', error.response.data.error)
             setError(true)
             setNoticeMessage(
               `Information about ${personToUpdate.name} was already removed from server`
@@ -78,20 +79,32 @@ const App = () => {
         name: newPerson.name,
         number: newPerson.number,
       }
-      console.log('newly added person details:', newPersonObject)
+      console.log('new-to-add person details:', newPersonObject)
       personServices
-        .addPerson(newPersonObject)
-        .then(returnedPerson => {
-          setPersons(persons.concat(returnedPerson))
-          console.log('all persons on the phonebook with newly added person:', returnedPerson)
+        .createPerson(newPersonObject)
+        .then(createdPerson => {
+          setPersons(persons.concat(createdPerson))
+          console.log('new person added:', createdPerson)
           setNewPerson({ name: '', number: '' })
           setNoticeMessage(
-            `Person ${returnedPerson.name} has been added!`
+            `Person ${createdPerson.name} has been added!`
           )
           setTimeout(() => {
             setNoticeMessage(null)
           }, 5000)
-        })        
+        })
+        .catch(error => {   
+          // validation by Mongoose schema on the backend
+          // access the error response message sent by the server
+          console.log(error.response.data.error)  
+          
+          setError(true)
+          setNoticeMessage(error.response.data.error)
+          setTimeout(() => {
+            setNoticeMessage(null)
+          }, 5000)
+
+        })
     }
   }
 
@@ -128,5 +141,6 @@ const App = () => {
   )
 
 }
+
 
 export default App

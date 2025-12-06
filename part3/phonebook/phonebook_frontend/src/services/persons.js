@@ -7,7 +7,7 @@ const getAllPersons = () => {
   return request.then(response => response.data)
 }
 
-const addPerson = (newPersonObject) => {
+const createPerson = (newPersonObject) => {
   const request = axios.post(baseUrl, newPersonObject)
   return request.then((response) => response.data)
 }
@@ -24,7 +24,7 @@ const deletePerson = (id) => {
 
 export default {
   getAllPersons,
-  addPerson,
+  createPerson,
   updatePerson,
   deletePerson,
 }
