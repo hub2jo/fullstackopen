@@ -50,7 +50,7 @@ const App = () => {
           .updatePerson(personToUpdate.id, updatedPerson)
           .then(returnedPerson => {
             setPersons(persons.map(p => p.id !== personToUpdate.id ? p : returnedPerson))
-            console.log('all persons on the phonebook with updated person:', returnedPerson)
+            console.log('updated person:', returnedPerson)
             setNewPerson({ name: '', number: '' })          
             setNoticeMessage(
               `Person ${returnedPerson.name}'s number has been updated!`
@@ -78,7 +78,7 @@ const App = () => {
         name: newPerson.name,
         number: newPerson.number,
       }
-      console.log('newly added person details with id:', newPersonObject)
+      console.log('newly added person details:', newPersonObject)
       personServices
         .addPerson(newPersonObject)
         .then(returnedPerson => {
@@ -97,14 +97,16 @@ const App = () => {
 
   const handleDeleteOf = id => {
     const person = persons.find(p => p.id === id)
+    const personName = person.name // Store name before async operations
+    
     if (window.confirm(`Delete ${person.name} ?`)) {
       personServices
         .deletePerson(id)
-        .then((returnedPerson) => {
+        .then(() => {
           setPersons(persons.filter(p => p.id !== id))
-          console.log('deleted person:', returnedPerson)
+          console.log('deleted person:', personName)
           setNoticeMessage(
-            `Person ${returnedPerson.name} has been deleted!`
+            `Person ${personName} has been deleted!`
           )
           setTimeout(() => {
             setNoticeMessage(null)
