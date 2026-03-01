@@ -1,4 +1,6 @@
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
 
 const initialBlogs = [
   {
@@ -21,6 +23,21 @@ const initialBlogs = [
   }
 ]
 
+const createInitialUsers = async () => {
+  return [
+    {
+      username: 'root',
+      name: 'rubicle',
+      passwordHash: await bcrypt.hash('rudimentary', 10)
+    },
+    {
+      username: 'world champion',
+      name: 'middle eastern',
+      passwordHash: await bcrypt.hash('blackbelt', 10)
+    }
+  ]
+}
+
 const nonExistingId = async () => {
   const blog = new Blog({ title: 'willremovethissoon', author: 'hub2jo test', url: 'test.com', likes: 0 })
   await blog.save()
@@ -34,6 +51,11 @@ const blogsInDb = async () => {
   return blogs.map(blog => blog.toJSON())
 }
 
+const usersInDb = async () => {
+  const users = await User.find({})
+  return users.map(u => u.toJSON())
+}
+
 module.exports = {
-  initialBlogs, nonExistingId, blogsInDb
+  initialBlogs, createInitialUsers, nonExistingId, blogsInDb, usersInDb
 }
