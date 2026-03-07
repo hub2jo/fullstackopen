@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs/
+Content-Type: application/json
+
+{
+  "title": "Actually why not having a beetle",
+  "author": "future robot",
+  "url": "anything.anywhere.com.sg",
+  "likes": 100,
+  "userId": "69a3e5498453615c7a53f6af"
+}

@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1sdXVra2FpIiwiaWQiOiI2OWEzZTU0OTg0NTM2MTVjN2E1M2Y2YWYiLCJpYXQiOjE3NzIzNjE5MjksImV4cCI6MTc3MjM2NTUyOX0.5LQqvxWu-DLvQ4OUeGk6SpP8NsqpVjiwPEqf0lUWXRs
+
+{
+  "title": "Actually why not having a Volkswagen Beetle",
+  "author": "future robot",
+  "url": "anything.anywhere.com.sg",
+  "likes": 100
+}
