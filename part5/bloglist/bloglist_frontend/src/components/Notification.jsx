@@ -7,8 +7,8 @@ const Notification = ({ message, error }) => {
     padding: '10px',
     marginBottom: '10px'
   }
-  const noticeStyleRed = Object.assign({}, noticeStyle, {color: 'red'});
-  const noticeStyleGreen = Object.assign({}, noticeStyle, {color: 'green'});
+  const noticeStyleRed = Object.assign({}, noticeStyle, { color: 'red' })
+  const noticeStyleGreen = Object.assign({}, noticeStyle, { color: 'green' })
 
   if (message === null) {
     return null
@@ -24,7 +24,7 @@ const Notification = ({ message, error }) => {
         {message}
       </div>
     )
-  }   
+  }
 }
 
 export default Notification
