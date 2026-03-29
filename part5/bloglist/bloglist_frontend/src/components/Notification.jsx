@@ -14,13 +14,13 @@ const Notification = ({ message, error }) => {
     return null
   } else if (error) {
     return (
-      <div style={noticeStyleRed}>
+      <div className='error' style={noticeStyleRed}>
         {message}
       </div>
     )
   } else {
     return (
-      <div style={noticeStyleGreen}>
+      <div className='success' style={noticeStyleGreen}>
         {message}
       </div>
     )

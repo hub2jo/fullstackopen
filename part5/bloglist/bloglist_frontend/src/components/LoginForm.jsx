@@ -12,7 +12,7 @@ const LoginForm = ({ handleLogin }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form aria-label="login form" onSubmit={handleSubmit}>
       <div>
         <label>
           username
