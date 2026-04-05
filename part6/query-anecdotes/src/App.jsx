@@ -1,17 +1,24 @@
+import { useContext } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getAnecdotes, updateAnecdote } from './requests'
 
 import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
+import AnecdotesContext from './AnecdotesContext'
 
 const App = () => {
   const queryClient = useQueryClient()
+  const { anecdotesDispatch } = useContext(AnecdotesContext)
 
   const updateAnecdoteMutation = useMutation({
     mutationFn: updateAnecdote,
     onSuccess: (updatedAnecdote) => {
       const anecdotes = queryClient.getQueryData(['anecdotes'])
       queryClient.setQueryData(['anecdotes'], anecdotes.map((anecdote) => (anecdote.id === updatedAnecdote.id ? updatedAnecdote : anecdote)))
+      anecdotesDispatch({ type: 'SET', payload: `anecdote '${updatedAnecdote.content}' voted` })
+      setTimeout(() => {
+        anecdotesDispatch({ type: 'CLEAR' })
+      }, 5000)
     }
   })
 
